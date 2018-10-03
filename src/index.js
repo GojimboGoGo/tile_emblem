@@ -22,24 +22,32 @@ class Board extends React.Component {
         );
     }
 
+    renderCols(row, width) {
+        let cols = [];
+        const start = row*width;
+        for (let i = 0; i < width; i++) {
+            cols.push(this.renderSquare(start+i));
+        }
+        return cols;
+    }
+
+    renderRow(height, width) {
+        let rows = [];
+        for (let i = 0; i < height; i++) {
+            rows.push(
+                <div className="board-row">
+                    {this.renderCols(i, width)}
+                </div>
+            );
+        }
+        return rows;
+    }
+
     render() {
+
         return (
             <div>
-                <div className="board-row">
-                    {this.renderSquare(0)}
-                    {this.renderSquare(1)}
-                    {this.renderSquare(2)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(3)}
-                    {this.renderSquare(4)}
-                    {this.renderSquare(5)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(6)}
-                    {this.renderSquare(7)}
-                    {this.renderSquare(8)}
-                </div>
+                {this.renderRow(this.props.height, this.props.width)}
             </div>
         );
     }
@@ -47,13 +55,16 @@ class Board extends React.Component {
 
 class Game extends React.Component {
     constructor(props) {
+        const LENGTH = 3;
         super(props);
         this.state = {
             history: [{
-                squares: Array(9).fill(null),
+                squares: Array(LENGTH*LENGTH).fill(null),
             }],
             stepNumber: 0,
             xIsNext: true,
+            height: LENGTH,
+            width: LENGTH,
         };
     }
     
@@ -76,11 +87,12 @@ class Game extends React.Component {
     }
 
     findCoords(arr1, arr2) {
-        let loc;
+        const height = this.state.height;
+        const width = this.state.width;
         for (let i = 0; i < arr1.length; i++) {
             if(arr1[i] !== arr2[i]) {
-                loc = i;
-                return [loc%3+1, 3-parseInt(loc/3, 10)];
+                const loc = i;
+                return [loc%width+1, height-parseInt(loc/height, 10)];
             }
         }
     }
@@ -94,6 +106,8 @@ class Game extends React.Component {
 
     render() {
         const history = this.state.history;
+        const height = this.state.height;
+        const width = this.state.width;
         const current = history[this.state.stepNumber];
         const winner = calculateWinner(current.squares);
 
@@ -123,6 +137,8 @@ class Game extends React.Component {
                 <div className="game-board">
                     <Board 
                         squares={current.squares}
+                        height={height}
+                        width={width}
                         onClick={(i) => this.handleClick(i)}
                     />
                 </div>
